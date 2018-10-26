@@ -1,6 +1,13 @@
 # ar_track_alvarのバグチェック
 
+## ROS Package Requirements
+
+- ar_track_alvar
+- uvc_camera
+
 ## 起動
+
+USBカメラをつなげたあと・・・
 
 ```zsh
 $ roslaunch ar_test ar_test.launch tf:=true
