@@ -1,24 +1,42 @@
 <launch>
   <arg name="calib" default="false" />
   <arg name="ar" default="true" />
-  <arg name="device" default="/dev/video0" />
+  <arg name="frame_id" default="/camera" />
 
   <group if="$(arg ar)">
     <node pkg="tf" type="static_transform_publisher" name="map_to_camera" output="screen"
-      args="0 0.1 0.5 0 0 0  map camera 100" />
+        args="0 0.1 0.5 1.5708 3.14159 0.785398 map camera 100" />
 
-    <node name="camera_node"  pkg="uvc_camera" type="uvc_camera_node" output="screen" required="true">
-      <param name="device" value="$(arg device)"/>
-      <param name="frame_id" value="/camera"/>
-      <param name="camera_info_url" type="string" value="file://$(find ar_test)/config/ost.yaml" />
-    </node>  
+    <include file="$(find video_stream_opencv)/launch/camera.launch">
+      <!-- node name and ros graph name -->
+      <arg name="camera_name" value="usb_camera" />
+      <!-- means video device 0, /dev/video0 -->
+      <arg name="video_stream_provider" value="1" />
+      <!-- set camera fps to (if the device allows) -->
+      <arg name="set_camera_fps" value="30"/>
+      <!-- set buffer queue size of frame capturing to -->
+      <arg name="buffer_queue_size" value="100" />
+      <!-- throttling the querying of frames to -->
+      <arg name="fps" value="30" />
+      <!-- setting frame_id -->
+      <arg name="frame_id" value="$(arg frame_id)" />
+      <!-- camera info loading, take care as it needs the "file:///" at the start , e.g.:
+      "file:///$(find your_camera_package)/config/your_camera.yaml" -->
+      <arg name="camera_info_url" value="file://$(find ar_test)/config/ost.yaml" />
+      <!-- flip the image horizontally (mirror it) -->
+      <arg name="flip_horizontal" value="true" />
+      <!-- flip the image vertically -->
+      <arg name="flip_vertical" value="false" />
+      <!-- visualize on an image_view window the stream generated -->
+      <arg name="visualize" value="false" />
+    </include>
 
     <arg name="marker_size" default="5.0" />
     <arg name="max_new_marker_error" default="0.08" />
     <arg name="max_track_error" default="0.2" />
-    <arg name="cam_image_topic" default="/image_raw" />
-    <arg name="cam_info_topic" default="/camera_info" />
-    <arg name="output_frame" default="/camera" />
+    <arg name="cam_image_topic" default="/usb_camera/image_raw" />
+    <arg name="cam_info_topic" default="/usb_camera/camera_info" />
+    <arg name="output_frame" default="$(arg frame_id)" />
 
     <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" required="true" 
       args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error)
@@ -28,13 +46,32 @@
   </group>
 
   <group if="$(arg calib)">
-    <node name="camera_node"  pkg="uvc_camera" type="uvc_camera_node" output="screen" required="true">
-      <param name="device" value="$(arg device)"/>
-      <param name="frame_id" value="/camera"/>
-    </node>  
+    <include file="$(find video_stream_opencv)/launch/camera.launch">
+      <!-- node name and ros graph name -->
+      <arg name="camera_name" value="usb_camera" />
+      <!-- means video device 0, /dev/video0 -->
+      <arg name="video_stream_provider" value="1" />
+      <!-- set camera fps to (if the device allows) -->
+      <arg name="set_camera_fps" value="30"/>
+      <!-- set buffer queue size of frame capturing to -->
+      <arg name="buffer_queue_size" value="100" />
+      <!-- throttling the querying of frames to -->
+      <arg name="fps" value="30" />
+      <!-- setting frame_id -->
+      <arg name="frame_id" value="$(arg frame_id)" />
+      <!-- camera info loading, take care as it needs the "file:///" at the start , e.g.:
+      "file:///$(find your_camera_package)/config/your_camera.yaml" -->
+      <arg name="camera_info_url" value="" />
+      <!-- flip the image horizontally (mirror it) -->
+      <arg name="flip_horizontal" value="true" />
+      <!-- flip the image vertically -->
+      <arg name="flip_vertical" value="false" />
+      <!-- visualize on an image_view window the stream generated -->
+      <arg name="visualize" value="false" />
+    </include>
 
     <node name="camera_calib" pkg="camera_calibration" type="cameracalibrator.py" output="screen" required="true"
-        args="--size 8x6 --square 0.0245 image:=/image_raw" />
+      args="--size 8x6 --square 0.0245 image:=/camera/image_raw" />
   </group>
 
 </launch>
