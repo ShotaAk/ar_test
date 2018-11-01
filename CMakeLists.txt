@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   uvc_camera
   roscpp
   std_msgs
+  video_stream_opencv
 )
 
 ## System dependencies are found with CMake's conventions
