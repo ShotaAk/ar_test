@@ -71,7 +71,7 @@
     </include>
 
     <node name="camera_calib" pkg="camera_calibration" type="cameracalibrator.py" output="screen" required="true"
-      args="--size 8x6 --square 0.0245 image:=/camera/image_raw" />
+      args="--size 8x6 --square 0.0245 image:=/usb_camera/image_raw" />
   </group>
 
 </launch>
